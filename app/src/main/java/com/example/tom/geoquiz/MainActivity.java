@@ -9,17 +9,21 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String KEY_INDEX = "index";
     private Button mTrueButton;
+    Map<Integer, Boolean> blockedButt = new HashMap<Integer, Boolean>();
     private Button mFalseButton;
     private ImageButton mNextButton;
     private TextView mQuestionTextView;
     private ImageButton mPrevButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        blockedButt.put(0, false);
         super.onCreate(savedInstanceState);
         Log.d(TAG,"onCreate(Bundle) called");
         setContentView(R.layout.activity_main);
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mCurrentIndex = (mCurrentIndex+1)%mQuestionBank.length;
+                BlockButt(mCurrentIndex, false);
                 updateQuestion();
             }
         });
@@ -41,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mCurrentIndex = (mCurrentIndex+1)%mQuestionBank.length;
+                BlockButt(mCurrentIndex, false);
                 updateQuestion();
             }
         });
@@ -49,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mCurrentIndex = (mCurrentIndex-1)%mQuestionBank.length;
+                BlockButt(mCurrentIndex, false);
                 updateQuestion();
             }
         });
@@ -57,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                checkAnswer(true);
+               BlockButt(mCurrentIndex, true);
             }
         });
         mFalseButton = (Button) findViewById(R.id.false_button);
@@ -64,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 checkAnswer(false);
+                BlockButt(mCurrentIndex, true);
             }
         });
     }
@@ -81,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateQuestion(){
         int question = mQuestionBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(question);
+        checkButt(mCurrentIndex);
     }
 
     private void checkAnswer(boolean userPressedTrue){
@@ -94,6 +104,21 @@ public class MainActivity extends AppCompatActivity {
             messageResId=R.string.incorrect_toast;
         }
         Toast.makeText(this,messageResId,Toast.LENGTH_SHORT).show();
+    }
+
+    public void BlockButt(int currentIndex, boolean block){
+        blockedButt.put(currentIndex, block);
+    }
+
+    public void checkButt(int currentIndex){
+        if(blockedButt.get(currentIndex)){
+            mTrueButton.setEnabled(false);
+            mFalseButton.setEnabled(false);
+        }
+        if(!blockedButt.get(currentIndex)){
+            mTrueButton.setEnabled(true);
+            mFalseButton.setEnabled(true);
+        }
     }
 
     @Override
