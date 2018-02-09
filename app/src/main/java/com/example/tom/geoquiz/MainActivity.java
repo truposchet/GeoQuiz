@@ -3,27 +3,30 @@ package com.example.tom.geoquiz;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String KEY_INDEX = "index";
     private Button mTrueButton;
-    Map<Integer, Boolean> blockedButt = new HashMap<Integer, Boolean>();
+    SparseBooleanArray blockedButt = new SparseBooleanArray();
     private Button mFalseButton;
     private ImageButton mNextButton;
     private TextView mQuestionTextView;
     private ImageButton mPrevButton;
+    private int answeredQuestions = 0;
+    private int trueAnswers=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        blockedButt.put(0, false);
+        for(int i = 0; i<=mQuestionBank.length; i++){
+            blockedButt.put(i, false);
+        }
         super.onCreate(savedInstanceState);
         Log.d(TAG,"onCreate(Bundle) called");
         setContentView(R.layout.activity_main);
@@ -32,47 +35,53 @@ public class MainActivity extends AppCompatActivity {
             mCurrentIndex=savedInstanceState.getInt(KEY_INDEX, 0);
         }
 
-        mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
+        mQuestionTextView = findViewById(R.id.question_text_view);
         mQuestionTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //blockButt(mCurrentIndex, false);
                 mCurrentIndex = (mCurrentIndex+1)%mQuestionBank.length;
-                BlockButt(mCurrentIndex, false);
                 updateQuestion();
             }
         });
-        mNextButton = (ImageButton) findViewById(R.id.next_button);
+        mNextButton = findViewById(R.id.next_button);
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //blockButt(mCurrentIndex, false);
                 mCurrentIndex = (mCurrentIndex+1)%mQuestionBank.length;
-                BlockButt(mCurrentIndex, false);
+                checkButt(mCurrentIndex);
                 updateQuestion();
             }
         });
-        mPrevButton = (ImageButton) findViewById(R.id.previous_button);
+        mPrevButton =  findViewById(R.id.previous_button);
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //blockButt(mCurrentIndex, false);
                 mCurrentIndex = (mCurrentIndex-1)%mQuestionBank.length;
-                BlockButt(mCurrentIndex, false);
+                checkButt(mCurrentIndex);
                 updateQuestion();
             }
         });
-        mTrueButton = (Button) findViewById(R.id.true_button);
+        mTrueButton =  findViewById(R.id.true_button);
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               checkAnswer(true);
-               BlockButt(mCurrentIndex, true);
+                blockButt(mCurrentIndex, true);
+                checkButt(mCurrentIndex);
+                answeredQuestions++;
+                checkAnswer(true);
             }
         });
-        mFalseButton = (Button) findViewById(R.id.false_button);
+        mFalseButton =  findViewById(R.id.false_button);
         mFalseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                blockButt(mCurrentIndex, true);
+                checkButt(mCurrentIndex);
+                answeredQuestions++;
                 checkAnswer(false);
-                BlockButt(mCurrentIndex, true);
             }
         });
     }
@@ -90,23 +99,26 @@ public class MainActivity extends AppCompatActivity {
     private void updateQuestion(){
         int question = mQuestionBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(question);
-        checkButt(mCurrentIndex);
     }
 
     private void checkAnswer(boolean userPressedTrue){
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
 
-        int messageResId = 0;
+        int messageResId;
         if(userPressedTrue == answerIsTrue){
+            trueAnswers++;
             messageResId = R.string.correct_toast;
         }
         else{
             messageResId=R.string.incorrect_toast;
         }
         Toast.makeText(this,messageResId,Toast.LENGTH_SHORT).show();
+        if (answeredQuestions == mQuestionBank.length){
+            Toast.makeText(this,trueAnswers+"/"+mQuestionBank.length,Toast.LENGTH_SHORT).show();
+        }
     }
 
-    public void BlockButt(int currentIndex, boolean block){
+    public void blockButt(int currentIndex, boolean block){
         blockedButt.put(currentIndex, block);
     }
 
