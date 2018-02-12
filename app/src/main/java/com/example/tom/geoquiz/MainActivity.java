@@ -1,5 +1,6 @@
 package com.example.tom.geoquiz;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton mNextButton;
     private TextView mQuestionTextView;
     private ImageButton mPrevButton;
+    private Button mCheatButton;
     private int answeredQuestions = 0;
     private int trueAnswers=0;
     @Override
@@ -39,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         mQuestionTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //blockButt(mCurrentIndex, false);
                 mCurrentIndex = (mCurrentIndex+1)%mQuestionBank.length;
                 updateQuestion();
             }
@@ -48,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //blockButt(mCurrentIndex, false);
                 mCurrentIndex = (mCurrentIndex+1)%mQuestionBank.length;
                 checkButt(mCurrentIndex);
                 updateQuestion();
@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //blockButt(mCurrentIndex, false);
                 mCurrentIndex = (mCurrentIndex-1)%mQuestionBank.length;
                 checkButt(mCurrentIndex);
                 updateQuestion();
@@ -82,6 +81,16 @@ public class MainActivity extends AppCompatActivity {
                 checkButt(mCurrentIndex);
                 answeredQuestions++;
                 checkAnswer(false);
+            }
+        });
+        mCheatButton = findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+                Intent intent = CheatActivity.newIntent(MainActivity.this,
+                        answerIsTrue);
+                startActivity(intent);
             }
         });
     }
